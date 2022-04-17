@@ -1,0 +1,52 @@
+.pipe {
+  width: 134px;
+  height: 134px;
+}
+
+[id^="option-"].selected {
+  border-color: blue !important;
+  background-color: rgb(57, 120, 255);
+  border-width: 2px !important;
+}
+
+.selected * {
+  filter: opacity(40%);
+}
+
+#btn-delete {
+  font-size: 4rem;
+}
+
+#btn-delete.selected {
+  border-color: rgb(122, 0, 0) !important;
+  background-color: rgb(231, 67, 56);
+  border-width: 2px !important;
+}
+
+.invalid-edge-0 {
+  border-color: red black black !important;
+  border-width: 3px 1px 1px !important;
+}
+
+.invalid-edge-1 {
+  border-color: black red black black !important;
+  border-width: 1px 3px 1px 1px !important;
+}
+
+.invalid-edge-2 {
+  border-color: black black red !important;
+  border-width: 1px 1px 3px !important;
+}
+
+.invalid-edge-3 {
+  border-color: black black black red !important;
+  border-width: 1px 1px 1px 3px !important;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+}
