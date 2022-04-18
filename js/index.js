@@ -1,6 +1,7 @@
 import validatePipeSelection, { AssertionError } from "./inputValidator.js";
 
-const OPTIONS = $("#options tr td");
+const OPTIONS = $("#options td");
+const ROTATE_BTN = $("#btn-rotate");
 const GRID = $("#grid tr td");
 
 let currentlySelected = null;
@@ -38,6 +39,11 @@ function selectPipeOption({ currentTarget }) {
   }
   resetSelection();
   currentlySelected = clicked;
+  if (clicked === "delete") {
+    ROTATE_BTN.addClass("disabled");
+  } else {  
+    ROTATE_BTN.removeClass("disabled");
+  }
   $("#" + currentTarget.id).addClass("selected");
 }
 
@@ -213,6 +219,7 @@ function resetSelection(event) {
     removeHoverPreview(currentlyHoveringElement, position);
   }
   currentlySelected = null;
+  ROTATE_BTN.addClass("disabled");
   OPTIONS.removeClass("selected");
 }
 
@@ -223,7 +230,7 @@ function getEventKey(e) {
 
 function handleRotate(shiftIsHeld = false, optionOverride) {
   if (optionOverride === undefined) optionOverride = currentlySelected;
-  if (!optionOverride) return;
+  if (!optionOverride || optionOverride === "delete") return;
   let orientation = pipeOrientation[optionOverride];
   if (shiftIsHeld) {
     // Rotate in opposite direction if user holding the shift key
@@ -279,4 +286,5 @@ GRID.click(selectPipePosition).hover(
   (event) => hoverPipePosition(event, false),
   (event) => hoverPipePosition(event, true)
 );
+ROTATE_BTN.click(() => handleRotate());
 $(document).click(resetSelection).keydown(handleKeyDown);

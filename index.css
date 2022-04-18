@@ -11,6 +11,18 @@
 
 .selected * {
   filter: opacity(40%);
+  cursor: default;
+}
+
+#btn-rotate {
+  color:rgb(57, 120, 255);
+  background-color: lightgray;
+}
+
+#btn-rotate.disabled {
+  color: grey;
+  background-color: transparent;
+  cursor: not-allowed;
 }
 
 #btn-delete {

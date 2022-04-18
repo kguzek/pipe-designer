@@ -58,27 +58,26 @@
           </td>
         </tr>
       </table>
-      <table
-        id="options"
-        class="d-flex justify-content-center table-bordered mt-auto"
-      >
-        <tr class="text-center">
-          <td colspan="5"><i class="fas fa-rotate">Rotate</i></td>
+      <table class="d-flex justify-content-center table-bordered mt-auto">
+        <tr class="text-center user-select-none">
+          <td id="btn-rotate" colspan="5" class="pt-3 pb-3 disabled" role="button">
+            <i class="fas fa-rotate-right fa-2xl"></i>
+          </td>
         </tr>
-        <tr>
-          <td id="option-cross">
+        <tr id="options">
+          <td id="option-cross" role="button">
             <img src="images/pipe-cross.png" alt="Cross=shaped pipe element" />
           </td>
-          <td id="option-T">
-            <img src="images/pipe-T.png" alt="T-shaped pipe element" />
+          <td id="option-T" role="button">
+          <img src="images/pipe-T.png" alt="T-shaped pipe element" />
           </td>
-          <td id="option-straight">
+          <td id="option-straight" role="button">
             <img src="images/pipe-straight.png" alt="Straight pipe element" />
           </td>
-          <td id="option-L">
+          <td id="option-L" role="button">
             <img src="images/pipe-L.png" alt="L-shaped pipe element" />
           </td>
-          <td id="btn-delete">
+          <td id="btn-delete" role="button">
             <i
               class="fas fa-trash pipe d-flex justify-content-center align-items-center"
             ></i>
