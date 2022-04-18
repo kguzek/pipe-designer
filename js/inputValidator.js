@@ -21,7 +21,8 @@ export default function validatePipeSelection(
   elementName,
   orientation,
   elementPosition,
-  { enabledEdges, disabledEdges }
+  enabledEdges,
+  disabledEdges
 ) {
   function assertState(value, isColumn, enabled, assertedEdge) {
     let rowOrColumn = "row";
@@ -48,8 +49,7 @@ export default function validatePipeSelection(
     const positionsArray = objToCompareAgainst[value];
     if (
       positionsArray?.length > 1 ||
-      (positionsArray?.length === 1 &&
-        positionsArray?.shift() !== elementPosition)
+      (positionsArray?.length === 1 && positionsArray[0] !== elementPosition)
     )
       throw new AssertionError(!enabled, rowOrColumn, assertedEdge);
 
@@ -110,8 +110,28 @@ export default function validatePipeSelection(
   // console.log("Enabled columns:", enabledColumns);
   // console.log("Disabled rows:", disabledRows);
   // console.log("Disabled columns:", disabledColumns);
-  return {
-    disabled: { rows: disabledRows, columns: disabledColumns },
-    enabled: { rows: enabledRows, columns: enabledColumns },
-  };
+
+  // return {
+  //   disabled: { rows: disabledRows, columns: disabledColumns },
+  //   enabled: { rows: enabledRows, columns: enabledColumns },
+  // };
+
+  // Merge the row and column rules
+  for (const [obj, values] of [
+    [enabledEdges, { rows: enabledRows, columns: enabledColumns }],
+    [disabledEdges, { rows: disabledRows, columns: disabledColumns }],
+  ]) {
+    for (const property in values) {
+      for (const attr of values[property]) {
+        if (obj[property][attr]) {
+          if (obj[property][attr].includes(elementPosition)) {
+            continue;
+          }
+        } else {
+          obj[property][attr] = [];
+        }
+        obj[property][attr].push(elementPosition);
+      }
+    }
+  }
 }

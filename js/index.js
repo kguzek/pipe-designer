@@ -55,7 +55,19 @@ function getImageFilename(elementName) {
 /** Parses the filename and finds the raw element name. */
 function getElementName(filename) {
   if (!filename) return;
-  return filename.match(/images\/pipe-(\w+).png/)[1];
+  return filename.match(/images\/pipe-(\w+).png$/)[1];
+}
+
+/** Restores the cell where the 'ghost' pipe element is shown to its previous state. */
+function removeHoverPreview(imgElem, position) {
+  const previousSelection = userDesign[position];
+  imgElem.css("opacity", "1");
+  if (previousSelection) {
+    imgElem.attr("src", getImageFilename(previousSelection.elementName));
+    setRotation(imgElem, previousSelection.orientation);
+  } else {
+    imgElem.removeAttr("src");
+  }
 }
 
 function hoverPipePosition({ target, currentTarget }, hoverOut) {
@@ -65,20 +77,9 @@ function hoverPipePosition({ target, currentTarget }, hoverOut) {
 
   if (hoverOut) {
     currentlyHoveringElement = null;
-  }
-
-  const previousSelection = userDesign[currentTarget.id];
-
-  if (hoverOut) {
     cellElement.removeClass("bg-light");
     cellElement.addClass("bg-white");
-    imgElem.css("opacity", "1");
-    if (previousSelection) {
-      imgElem.attr("src", getImageFilename(previousSelection.elementName));
-      setRotation(imgElem, previousSelection.orientation);
-    } else {
-      imgElem.removeAttr("src");
-    }
+    removeHoverPreview(imgElem, currentTarget.id);
     return;
   }
   cellElement.addClass("bg-light");
@@ -102,9 +103,11 @@ function removePipeConditions(position) {
       for (const attr in obj[property]) {
         // Iterate through each position that imposes this condition
         for (const pos of obj[property][attr]) {
-          if (pos !== position) continue;
+          if (pos !== position) {
+            continue;
+          }
           // Remove the position from the array of positions imposing this condition
-          obj[property][attr].splice(obj[property][attr].indexOf(pos));
+          obj[property][attr].splice(obj[property][attr].indexOf(pos), 1);
           // Remove the condition if no pipe element position imposes it
           // (Technically not needed but saves future memory and lookup speed)
           if (obj[property][attr].length === 0) {
@@ -122,11 +125,29 @@ function selectPipePosition({ currentTarget }) {
   if (!imgElem) return;
   if (!currentlySelected) {
     // User clicks grid element with no pipe option selected
-    const elementName = getElementName(imgElem.attr("src"));
-    if (elementName) {
-      handleRotate(false, elementName);
-      userDesign[currentTarget.id].orientation = pipeOrientation[elementName];
-    }
+
+    // const elementName = getElementName(imgElem.attr("src"));
+    // if (elementName) {
+    //   removePipeConditions(currentTarget.id);
+    //   handleRotate(false, elementName);
+    //   const orientation = pipeOrientation[elementName];
+    //   try {
+    //     validatePipeSelection(
+    //       elementName,
+    //       orientation,
+    //       currentTarget.id,
+    //       enabledEdges,
+    //       disabledEdges
+    //     );
+    //   } catch (e) {
+    //     if (!(e instanceof AssertionError)) {
+    //       throw e;
+    //     }
+    //     errorAnimation($(currentTarget), "invalid-edge-" + e.assertedEdge);
+    //     return;
+    //   }
+    //   userDesign[currentTarget.id].orientation = pipeOrientation[elementName];
+    // }
     return;
   }
   if (currentlySelected === "delete") {
@@ -138,29 +159,17 @@ function selectPipePosition({ currentTarget }) {
     return;
   }
   const orientation = pipeOrientation[currentlySelected];
+  if (userDesign[currentTarget.id]) {
+    removePipeConditions(currentTarget.id);
+  }
   try {
-    const { enabled, disabled } = validatePipeSelection(
+    validatePipeSelection(
       currentlySelected,
       orientation,
       currentTarget.id,
-      { enabledEdges, disabledEdges }
+      enabledEdges,
+      disabledEdges
     );
-    if (userDesign[currentTarget.id]) {
-      removePipeConditions(currentTarget.id);
-    }
-    for (const [obj, values] of [
-      [enabledEdges, enabled],
-      [disabledEdges, disabled],
-    ]) {
-      for (const property in values) {
-        for (const attr of values[property]) {
-          if (!obj[property][attr]) {
-            obj[property][attr] = [];
-          }
-          obj[property][attr].push(currentTarget.id);
-        }
-      }
-    }
   } catch (e) {
     if (!(e instanceof AssertionError)) {
       throw e;
@@ -197,6 +206,11 @@ function resetSelection(event) {
     if (event.currentTarget !== event.target && event.target.id !== "root") {
       return;
     }
+  }
+  if (currentlyHoveringElement) {
+    const id = currentlyHoveringElement.attr("id");
+    const position = "position-" + id.split("-")[1];
+    removeHoverPreview(currentlyHoveringElement, position);
   }
   currentlySelected = null;
   OPTIONS.removeClass("selected");
@@ -236,7 +250,8 @@ function handleRotate(shiftIsHeld = false, optionOverride) {
 }
 
 function handleKeyDown(e) {
-  switch (getEventKey(e)) {
+  const key = getEventKey(e);
+  switch (key) {
     case "Escape":
       resetSelection();
       return;
@@ -246,7 +261,15 @@ function handleKeyDown(e) {
     case "R":
       handleRotate(true);
       return;
+    // case " ":
+    //   console.log("Enabled rows:", enabledEdges.rows);
+    //   console.log("Enabled columns:", enabledEdges.columns);
+    //   console.log("Disabled rows:", disabledEdges.rows);
+    //   console.log("Disabled columns:", disabledEdges.columns);
+    //   console.log();
+    //   break;
     default:
+      console.log(`Pressed key '${key}'`);
       return;
   }
 }
